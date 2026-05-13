@@ -2,13 +2,25 @@
 
 A RAG-powered chatbot that answers developer questions about the Upwork API using retrieval-augmented generation.
 
+## Live Demo
+
+[Try the app here](https://upwork-api-bot-ajz8th4adbob4cinvvhuct.streamlit.app)
+
 ## Architecture
 
 - **Embeddings**: sentence-transformers/all-MiniLM-L6-v2
-- **Vector DB**: ChromaDB (persistent, local)
+- **Vector Store**: NumPy + Pickle (cosine similarity search)
 - **Retrieval**: Hybrid (Semantic + BM25 keyword fusion)
 - **LLM**: Meta-Llama-3.1-8B-Instruct-Turbo via DeepInfra
 - **UI**: Streamlit
+
+## Features
+
+- Hybrid retrieval combining semantic search with BM25 keyword matching
+- Confidence-based hallucination guard
+- Streaming responses with latency display
+- Source attribution showing exact documentation snippets used
+- Retrieval debug panel showing individual chunk scores
 
 ## Setup & Run (Local)
 
@@ -28,25 +40,13 @@ pip install -r requirements.txt
 echo DEEPINFRA_API_KEY=your_key_here > .env
 
 # Build the vector index (run once)
-python build_index.py "path/to/API Documentation Partial.pdf"
+python build_index.py "API Documentation Partial.pdf"
 
 # Run the app
 streamlit run app.py
 ```
 
 App opens at http://localhost:8501
-
-## Deploy to Streamlit Cloud (Free)
-
-1. Push this repo to GitHub
-2. Go to https://share.streamlit.io
-3. Sign in with GitHub
-4. Click "New app"
-5. Select your repo, branch `main`, file `app.py`
-6. Under "Advanced settings" → add secret: `DEEPINFRA_API_KEY = your_key_here`
-7. Click "Deploy"
-
-**Important**: Before deploying, you must build the `chroma_db/` index locally and push it to the repo (or add index-building to the app startup).
 
 ## Project Structure
 
@@ -55,9 +55,10 @@ App opens at http://localhost:8501
 ├── build_index.py      # One-time PDF indexing script
 ├── rag/
 │   ├── ingest.py       # PDF loading + section-aware chunking
-│   ├── embeddings.py   # ChromaDB vector store
+│   ├── embeddings.py   # Vector store (numpy + pickle)
 │   ├── retriever.py    # Hybrid retrieval (semantic + BM25)
 │   └── llm.py          # DeepInfra LLM + hallucination guard
+├── vector_store/       # Pre-built embeddings index
 ├── requirements.txt
 ├── .env.example
 └── SUMMARY.md
